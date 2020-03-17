@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import utilities as utl
+from collections import deque
 
 def showImage(img, imgName):
 	resimg = img[0]
@@ -32,20 +33,16 @@ showImage([img,imgFil3,img1], 'img')
 
 
 def MarkSegment(seg, i, j, segmentCount):
-	seg[i][j] = segmentCount
-	## Mark Right
-	k = j+1
-	while seg[i][k] == -1:
-		seg[i][k] = segmentCount
-		k += 1
-	## Mark Left
-	k = j-1
-	while seg[i][k] == -1:
-		seg[i][k] = segmentCount
-		k -= 1 
-	if seg[i+1][j] == -1: MarkSegment(seg, i+1, j, segmentCount)
+	queue = deque()
+	queue.append((i,j))
+	while len(queue):
+		i, j = queue.pop()
+		seg[i][j] = segmentCount
+		if seg[i-1][j] == -1: queue.append((i-1,j))
+		if seg[i+1][j] == -1: queue.append((i+1,j))
+		if seg[i][j+1] == -1: queue.append((i,j+1))
+		if seg[i][j-1] == -1: queue.append((i,j-1))
 	return 
-
 
 segmentCount = 0
 h, w = filterImg.shape
@@ -56,6 +53,8 @@ for i in range(1,h-1):
 			segmentCount += 1
 			print(segmentCount, end='\r', flush = True)
 			MarkSegment(segLabel, i, j ,segmentCount)
+
+
 
 print(np.any(segLabel<0), np.any(segLabel>255), segmentCount)
 seg = utl.GetColoredSegmentationMask(segLabel, segmentCount)
