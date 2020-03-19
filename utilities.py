@@ -1,6 +1,13 @@
 import cv2
 import numpy as np
 
+def saveImage(img, imgName):
+	""" Concates horizontally Images: Save as PNG """
+	resimg = img[0]
+	for idx in range(1,len(img)):
+		resimg = cv2.hconcat((resimg,img[idx]))
+	cv2.imwrite(f'{imgName}.png', resimg)
+
 def GetColoredSegmentationMask(seg, segmentCount):
 	""" Return a colored segmented image """
 	colors = [tuple(np.random.randint(256, size=3)) for _ in range(256)]
