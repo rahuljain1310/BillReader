@@ -14,30 +14,39 @@ class PatchInfo:
 		self.Height = self.img.shape[0]
 		self.Width = self.img.shape[1]
 		self.text = self.extractText()
-		self.textDict = dict()
+		self.isLine = None
+		self.isBetweenLines = False
+		self.parent = None
+		self.siblings = None
+		self.isNumber = None
 
 	def extractText(self):
 		""" Extract Patch, Equilize The Image, Try With Different Padding Size """
 		for pad in range(1,9):
-			print(self.pos_coord)
 			img_ = utl.getPatch(self.img, self.pos_coord, pad)
-			print(img_.shape)
-			cv2.imshow('img_', img_)
 			equ = cv2.equalizeHist(img_)
-			cv2.imshow('eqy', equ)
-			cv2.waitKey(2000)
 			self.text = utl.getText(equ)
 			if self.text is not None: break
 
-	def isText(self): return (self.text is not "")
-	def isHeader(self): return (self.text in ir.HeaderBag)
+	def isText(self):
+		return (self.text is not "")
+
+	def checkKeyword(self):
+		if self.text[-1] == ":":
+			self.text = self.text[:-1]
+			self.isKeyword = True
+			return
+		self.isKeyword = False
+
+	def checkHeader(self):
+		self.isHeader = False
 
 	def findTextInfo(self):
 		""" Extract Information """
 		if self.text == "": return
-		self.textDict['isKeyword'] = self.isKeyword()
-		self.textDict['isHeader'] = self.isHeader()
-		self.textDict['isKeyword'] = self.isKeyWord()
+		self.checkKeyword()
+		self.checkHeader()
+
 
 
 
