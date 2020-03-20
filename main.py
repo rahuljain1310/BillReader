@@ -1,28 +1,52 @@
 import cv2
 import numpy as np
-from utilities import saveImage, GetColoredSegmentationMask
+import pytesseract as pt
+
+pt.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
+
+from utilities import saveImage, GetColoredSegmentationMask, isText
 from segTask import getSegments, getMask, getSegmentPositions, getRectSegments
 from collections import deque
+from patchInfo import PatchInfo
 
 ## Read Image
-for IMG_NO in range(5,11):
-	img = cv2.imread(f'Invoices/invoices ({IMG_NO}).jpg')
-	print("Image Shape: ",img.shape)
+IMG_NO  = 2
+IMG = cv2.imread(f'Invoices/invoices ({IMG_NO}).jpg')
+IMG_GRAY = cv2.cvtColor(IMG, cv2.COLOR_BGR2GRAY)
+print("Image Shape: ",IMG.shape)
+IMG_HEIGHT = IMG.shape[0]
+IMG_WIDTH = IMG.shape[1]
 
-	MaskImg = getMask(img, fSize=3)
-	MaskImg3 = np.repeat(MaskImg[...,None],3,axis=2)
-	ResultMask =  np.where(MaskImg3, img, 0)
-	segLabel, segmentCount = getSegments(MaskImg)
-	segMask = GetColoredSegmentationMask(segLabel, segmentCount)
-	# saveImage([img,MaskImg3,ResultMask, segMask], f'segMask{IMG_NO}')
+MaskImg = getMask(IMG, fSize=3)
+MaskImg3 = np.repeat(MaskImg[...,None],3,axis=2)
+ResultMask =  np.where(MaskImg3, IMG, 0)
+segLabel, segmentCount = getSegments(MaskImg)
+segMask = GetColoredSegmentationMask(segLabel, segmentCount)
 
-	segLabel_Pos = getSegmentPositions(segLabel, segmentCount)
-	Rect_segLabel = getRectSegments(segLabel_Pos, maskShape = segLabel.shape)
-	Rect_MaskImg = np.where(Rect_segLabel, 255, 0).astype(np.uint8)
-	Rect_MaskImg3 = np.repeat(Rect_MaskImg[...,None],3,axis=2)
-	Rect_ResultMask =  np.where(Rect_MaskImg3, img, 0)
-	Rect_segMask = GetColoredSegmentationMask(Rect_segLabel, segmentCount)
-	saveImage([img, segMask, ResultMask, Rect_segMask], f'Visualizations/segMask{IMG_NO}')
+segLabel_Positions = getSegmentPositions(segLabel, segmentCount)
+
+## We need to remove the boxes which cover the entire Page, Maybe Neglect Them
+def isNotBig(pos_coord):
+  minX, maxX, minY, maxY = pos_coord
+  if maxY-minY > 0.5*IMG_HEIGHT: return False
+  return True 
+
+segLabel_Positions = segLabel_Positions[[isNotBig(pos_coord) for pos_coord in segLabel_Positions]]
+print("Segments After Eliminating Big Segments: ", len(segLabel_Positions))
+
+Rect_segLabel = getRectSegments(segLabel_Positions, maskShape = segLabel.shape)
+Rect_MaskImg = np.where(Rect_segLabel, 255, 0).astype(np.uint8)
+Rect_MaskImg3 = np.repeat(Rect_MaskImg[...,None],3,axis=2)
+Rect_ResultMask =  np.where(Rect_MaskImg3, IMG, 0)
+# Rect_segMask = GetColoredSegmentationMask(Rect_segLabel, segmentCount)
+
+PatchInfoList = [PatchInfo(IMG_GRAY, segLabel_Positions[idx], idx) for idx in range(len(segLabel_Positions))]
+segLabel_Pos_filter = segLabel_Positions[[ x.isText() for x in PatchInfoList ]]
+print("Segments After Eliminating Segments With No Text: ", len(segLabel_Pos_filter))
+
+Rect_segLabel_filter = getRectSegments(segLabel_Pos_filter, maskShape = segLabel.shape)
+Rect_segMask_filter = GetColoredSegmentationMask(Rect_segLabel_filter, segmentCount)
+saveImage([IMG, Rect_ResultMask, Rect_segMask_filter], f'Visualizations/segMask{IMG_NO}')
 
 ### Clean Up ###
 cv2.destroyAllWindows()

@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import pytesseract as pt
 
 def saveImage(img, imgName):
 	""" Concates horizontally Images: Save as PNG """
@@ -19,3 +20,12 @@ def GetColoredSegmentationMask(seg, segmentCount):
 			seg_img[:, :, 1] += ((seg[:, :, 0] == c) * (colors[c][1])).astype('uint8')
 			seg_img[:, :, 2] += ((seg[:, :, 0] == c) * (colors[c][2])).astype('uint8')
 	return seg_img
+
+def getPatch(img, pos_coord, pad=2):
+	""" Get Patch from Image and Coordinates Positions """
+	minX, maxX, minY, maxY = pos_coord
+	return img[minY-pad:maxY+1+pad,minX-pad: maxX+1+pad]
+	
+def getText(img): return pt.image_to_string(img)
+def getPatchText(img,pos_coord,pad=2): return getText(getPatch(img,pos_coord,pad))
+def isText(img, pos_coord, pad=2): return (getPatchText(img,pos_coord,pad) is not "")

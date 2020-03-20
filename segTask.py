@@ -44,6 +44,8 @@ def getSegments(masks):
 	return segLabel, segmentCount
 
 def getSegmentPositions(segLabel, segmentCount):
+	""" Return Nx4 np_array for N segments labelled from 1 ... N 
+		  i.e. 0 pos[0] corresponds to segment with label 1 """
 	h,w = segLabel.shape
 	minX = np.repeat(w,segmentCount)
 	maxX = np.repeat(0,segmentCount)
