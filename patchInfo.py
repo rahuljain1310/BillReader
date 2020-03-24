@@ -10,6 +10,7 @@ class PatchInfo:
 		minX, maxX, minY, maxY = pos_coord
 		self.idx = idx
 		self.img = img
+		self.center = ((minX+maxX)/2, (minY+maxY)/2)
 		self.pos_coord = pos_coord
 		self.Height = self.img.shape[0]
 		self.Width = self.img.shape[1]
@@ -26,7 +27,10 @@ class PatchInfo:
 			img_ = utl.getPatch(self.img, self.pos_coord, pad)
 			equ = cv2.equalizeHist(img_)
 			self.text = utl.getText(equ)
-			if self.text is not None: break
+			if self.text is not "":
+				print(self.text)
+				self.findTextInfo()
+				break
 
 	def isText(self):
 		return (self.text is not "")

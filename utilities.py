@@ -21,6 +21,10 @@ def GetColoredSegmentationMask(seg, segmentCount):
 			seg_img[:, :, 2] += ((seg[:, :, 0] == c) * (colors[c][2])).astype('uint8')
 	return seg_img
 
+def getArea(pos_coord):
+  minX, maxX, minY, maxY = pos_coord
+  return (maxX-minX)*(maxY-minY)
+
 def getPatch(img, pos_coord, pad=2):
 	""" Get Patch from Image and Coordinates Positions """
 	minX, maxX, minY, maxY = pos_coord

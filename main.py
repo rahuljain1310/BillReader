@@ -4,7 +4,7 @@ import pytesseract as pt
 
 pt.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
-from utilities import saveImage, GetColoredSegmentationMask, isText
+from utilities import saveImage, GetColoredSegmentationMask, isText, getArea
 from segTask import getSegments, getMask, getSegmentPositions, getRectSegments
 from collections import deque
 from patchInfo import PatchInfo
@@ -14,8 +14,10 @@ IMG_NO  = 2
 IMG = cv2.imread(f'Invoices/invoices ({IMG_NO}).jpg')
 IMG_GRAY = cv2.cvtColor(IMG, cv2.COLOR_BGR2GRAY)
 print("Image Shape: ",IMG.shape)
+
 IMG_HEIGHT = IMG.shape[0]
 IMG_WIDTH = IMG.shape[1]
+IMG_AREA = IMG_HEIGHT*IMG_WIDTH
 
 MaskImg = getMask(IMG, fSize=3)
 MaskImg3 = np.repeat(MaskImg[...,None],3,axis=2)
@@ -25,20 +27,17 @@ segMask = GetColoredSegmentationMask(segLabel, segmentCount)
 
 segLabel_Positions = getSegmentPositions(segLabel, segmentCount)
 
-## We need to remove the boxes which cover the entire Page, Maybe Neglect Them
-def isNotBig(pos_coord):
-  minX, maxX, minY, maxY = pos_coord
-  if maxY-minY > 0.5*IMG_HEIGHT: return False
-  return True 
+infoDict = dict()
 
-segLabel_Positions = segLabel_Positions[[isNotBig(pos_coord) for pos_coord in segLabel_Positions]]
+## We need to remove the boxes which cover the entire Page, Maybe Neglect Them
+segLabel_Positions = segLabel_Positions[[getArea(pos_coord) < 0.5 *IMG_AREA for pos_coord in segLabel_Positions]]
 print("Segments After Eliminating Big Segments: ", len(segLabel_Positions))
 
 Rect_segLabel = getRectSegments(segLabel_Positions, maskShape = segLabel.shape)
 Rect_MaskImg = np.where(Rect_segLabel, 255, 0).astype(np.uint8)
 Rect_MaskImg3 = np.repeat(Rect_MaskImg[...,None],3,axis=2)
 Rect_ResultMask =  np.where(Rect_MaskImg3, IMG, 0)
-# Rect_segMask = GetColoredSegmentationMask(Rect_segLabel, segmentCount)
+Rect_segMask = GetColoredSegmentationMask(Rect_segLabel, segmentCount)
 
 PatchInfoList = [PatchInfo(IMG_GRAY, segLabel_Positions[idx], idx) for idx in range(len(segLabel_Positions))]
 segLabel_Pos_filter = segLabel_Positions[[ x.isText() for x in PatchInfoList ]]

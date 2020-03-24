@@ -7,6 +7,7 @@ perUnitCost = ['Item Count', 'Per Item']
 priceBag = ['Cost', 'Amount', 'Total']
 totalBag = ['Grand Total', 'Final Amount','Invoice Total', 'Total']
 
+currencyBag = ['$', '₹', '¥', '€', '£']
 ## Exhaustive Lists 
 
 TermBag = ['Discount', 'Tax', 'Sub Total', 'Subtotal']
