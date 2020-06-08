@@ -1,14 +1,14 @@
 import numpy as np
-def is_key(s):
+def isKeyword(s):
 	# return if s is a key or value
 	pass
 
-def is_number(s):
+def isNumber(s):
 	# return if text is a number valued, cannot span multiple lines
 	pass
 
 # list(list(list(dict(['text':string,'point':dict('minx','miny','maxx','maxy'),'details':)))
-knwoledge = dict()
+
 def is_align(p1,p2):
 	pass
 def get_datav(p1,sect):
@@ -71,25 +71,25 @@ def group(section):
 		dl = section[i]	
 		# if 
 		for j in range(len(section[i])):
-			if dl[j]['is_number']:
+			if dl[j]['details']['isNumber']:
 		 		smatched[i][j] = True
 			ginc = False
-			if (not dl[j]['is_key']):
+			if (not dl[j]['details']['isKeyword']):
 				if (i==0):
 					if (j==0):
 						ginc = True
 					elif ( is_align(dl[j]['point'],dl[j-1]['point'])):
-						if (dl[j-1]['is_key'] and (not (matched[i][j-1]))):
+						if (dl[j-1]['details']['isKeyword'] and (not (matched[i][j-1]))):
 							matched[i][j] = True
 							section[i][j]['matched'] = True
 							grouped[i][j] = grouped[i][j-1]
-						elif (dl[j-1]['is_key'] or matched[i][j-1]):
+						elif (dl[j-1]['details']['isKeyword'] or matched[i][j-1]):
 							ginc = True
 						else:
 							grouped[i][j] = grouped[i][j-1]
 					else:
 						ginc = True
-					# if (dl[j]['is_number']):
+					# if (dl[j]['details']['isNumber']):
 					# 	matched[i][j] = True
 					# grouped[i][j] = g
 				else: ## not first line
@@ -99,13 +99,13 @@ def group(section):
 					else:
 						## first check from side
 						if ( is_align(dl[j]['point'],dl[j-1]['point'])):
-							if (dl[j-1]['is_key'] and (not (matched[i][j-1]))):
+							if (dl[j-1]['details']['isKeyword'] and (not (matched[i][j-1]))):
 								matched[i][j-1] = True ## match previous key
 								section[i][j-1]['matched'] = True
-								# if (dl[j]['is_number']):
+								# if (dl[j]['details']['isNumber']):
 								# 	matched[i][j] = True
 								grouped[i][j] = grouped[i][j-1] ## aligned with left
-							elif (dl[j-1]['is_key'] or matched[i][j-1]):
+							elif (dl[j-1]['details']['isKeyword'] or matched[i][j-1]):
 								check_above = True
 							else:
 								grouped[i][j] = grouped[i][j-1] ## aligned with left
@@ -119,11 +119,11 @@ def group(section):
 						if (ju==-1 or  matched[i-1][ju] or smatched[i-1][ju]):
 							ginc = True
 						else:
-							if (section[i-1][ju]['is_key']):
+							if (section[i-1][ju]['details']['isKeyword']):
 								matched[i-1][ju] = True
 								section[i-1][ju]['matched'] = True
 								grouped[i][j] = grouped[i-1][ju]
-								# if (dl[j]['is_number']):
+								# if (dl[j]['details']['isNumber']):
 								# 	matched[i][j] = True
 							
 			
@@ -145,7 +145,7 @@ def group(section):
 	# #
 def extract(data):
 	groups = []
-	
+	knwoledge = dict()
 	for section in data:
 		groups.extend(group(section))
 	i = 0
@@ -159,7 +159,7 @@ def extract(data):
 			knwoledge[str(i)+':'] = g[0]
 			extracted[i] = True
 
-		elif (g[0]['is_key'] and 'matched' in g[0]):
+		elif (g[0]['details']['isKeyword'] and 'matched' in g[0]):
 			pkey = g[0]
 			value =  ' '.join(g[1:])
 			knwoledge[str(i) + ':' + pkey] = value
@@ -171,14 +171,14 @@ def extract(data):
 	def half_keys(g):
 		numk = 0
 		for gi in g:
-			if gi['is_key']:
+			if gi['details']['isKeyword']:
 				numk +=1
 		if (numk >= (len(g)+1)/2):
 			return True
 		else:
 			return False
-	
-	i = 0
+	return knwoledge
+	# i = 0
 	# while(i<len(groups)):
 	# 	if not extracted[i]:
 	# 		if half_keys(groups[i]):
