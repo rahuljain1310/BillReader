@@ -7,7 +7,7 @@ pt.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
 from utilities import saveImage, GetColoredSegmentationMask, isText, getArea, getPostionFromFilter
 from segTask import getSegments, getMask, getSegmentPositions, getRectSegments
-from filter import applyAreaFilter
+from filter import applyAreaFilter, applyCoverFilter
 from collections import deque
 from patchInfo import PatchInfo
 from shape import getDimension
@@ -24,11 +24,13 @@ MaskImg = getMask(IMG, fSize=3)
 segLabel, segmentCount = getSegments(MaskImg)
 segLabel_Positions = getSegmentPositions(segLabel, segmentCount)
 segLabel_Positions = applyAreaFilter(segLabel_Positions, IMG_AREA)
+segLabel_Positions = applyCoverFilter(segLabel_Positions)
 
 PatchInfoList = [PatchInfo(IMG_GRAY, segment) for segment in segLabel_Positions]
 segLabelPatchList = [patch.getPatchDict() for patch in PatchInfoList ]
 sorted(segLabelPatchList, key = lambda patchDict: patchDict['details']['center'][0])
 segLabel_Positions = getPostionFromFilter(segLabelPatchList)
+
 
 def get2DSorted(Segment):
   V_List = list()
@@ -38,11 +40,9 @@ def get2DSorted(Segment):
     center_VerCoord = patchDict['details']['center'][1]
     previous_VerCoord = H_List[0]['details']['center'][1]
     if abs(center_VerCoord-previous_VerCoord) < 12:
-      print("Same Line", center_VerCoord, previous_VerCoord, patchDict['text'], H_List[0]['text'])
       H_List.append(patchDict)
     else:
       V_List.append(H_List)
-      print("New Line", center_VerCoord, previous_VerCoord, patchDict['text'], H_List[0]['text'])
       H_List = [patchDict]
   if (len(H_List) > 0):
     V_List.append(H_List)

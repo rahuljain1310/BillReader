@@ -10,8 +10,9 @@ class PatchInfo:
 		minX, maxX, minY, maxY = pos_coord
 		self.details = {
 			'center': ((minX+maxX)/2, (minY+maxY)/2),
-			'height': img.shape[0],
-			'width': img.shape[1],
+			'height': maxY-minY,
+			'width': maxX-minX,
+			'area': (maxY-minY)*(maxX-minX),
 			'isLine': False,
 			'isCurrency': False,
 			'isNumber': False,
@@ -55,10 +56,10 @@ class PatchInfo:
 
 	def extractText(self, img, pos_coord):
 		""" Extract Patch => Try Different Padding => Equilize"""
-		for pad in range(1,9):
+		for pad in range(1,12):
 			img_ = utl.getPatch(img, pos_coord, pad)
-			equ = cv2.equalizeHist(img_)
-			text = utl.getText(equ)
+			# img_ = cv2.equalizeHist(img_)
+			text = utl.getText(img_)
 			if text is not "": return text
 		return ""
 
@@ -84,6 +85,8 @@ class PatchInfo:
 		if (self.text.lower() in ir.Keywords):
 			self.details['isKeyWord'] = True
 		if (self.details['isNumber'] or self.details['isDate']):
+			self.details['isKeyWord'] = False
+		if (len(self.text)>100):
 			self.details['isKeyWord'] = False
 
 	def checkNumber(self):
