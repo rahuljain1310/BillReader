@@ -12,9 +12,11 @@ class PatchInfo:
 			'center': ((minX+maxX)/2, (minY+maxY)/2),
 			'height': img.shape[0],
 			'width': img.shape[1],
-			'isLine': None,
-			'isNumber': None,
-			'isKeyword': None,
+			'isLine': False,
+			'isCurrency': False,
+			'isNumber': False,
+			'isDate': False,
+			'isKeyword': False,
 		}
 		self.pos_coord = {
 			'minX': minX,
@@ -54,8 +56,6 @@ class PatchInfo:
 	def findDetails(self):
 		if self.text == "":
 			self.checkLine()
-		else:
-			self.details['isLine'] = False
 
 	def findTextInfo(self):
 		if self.text is not "":
@@ -63,7 +63,7 @@ class PatchInfo:
 			self.checkNumber()
 
 	def checkLine(self):
-		isLine = self.details['width'] > 300 * self.details['height']
+		isLine = self.details['width'] > 100 * self.details['height']
 		self.details['isLine'] = isLine
 
 	def checkKeyword(self):
@@ -72,8 +72,13 @@ class PatchInfo:
 			self.details['isKeyword'] = True
 
 	def checkNumber(self):
-		chars = set('$₹¥€£0123456789,')
-		self.details['isNumber'] = all((c in chars) for c in self.text)
+		charsDate = set('0123456789/-')
+		charsNumeric = set('0123456789')
+		charsCurrency = set('$₹¥€£0123456789,')
+		self.details['isCurrency'] = all((c in charsCurrency) for c in self.text)
+		self.details['isDate'] = all((c in charsDate) for c in self.text)
+		self.details['isNumber'] = all((c in charsNumeric) for c in self.text)
+
 
 
 
