@@ -16,7 +16,11 @@ def getMask(img, fSize = 7):
 	return MaskImg
 
 def getSegments(masks):
+	""" With BFS Mark Each Pixel with the Segment Label 
+			Returns A new Image With Pixel Labelling && Total Segments """
+			
 	def MarkSegment(seg, i, j, segmentCount):
+		""" Marks Each Segment Pixels With the Label """
 		queue = deque()
 		queue.append((i,j))
 		while len(queue):
@@ -45,7 +49,7 @@ def getSegments(masks):
 
 def getSegmentPositions(segLabel, segmentCount):
 	""" Return Nx4 np_array for N segments labelled from 1 ... N 
-		  i.e. 0 pos[0] corresponds to segment with label 1 """
+		  i.e. 0 pos[0] corresponds to pos coord of segment with label 1 """
 	h,w = segLabel.shape
 	minX = np.repeat(w,segmentCount)
 	maxX = np.repeat(0,segmentCount)
