@@ -8,16 +8,13 @@ from utilities import saveImage, GetColoredSegmentationMask, isText, getArea
 from segTask import getSegments, getMask, getSegmentPositions, getRectSegments
 from collections import deque
 from patchInfo import PatchInfo
+from shape import getDimension
 
 ## Read Image
 IMG_NO  = 2
 IMG = cv2.imread(f'Invoices/invoices ({IMG_NO}).jpg')
 IMG_GRAY = cv2.cvtColor(IMG, cv2.COLOR_BGR2GRAY)
-print("Image Shape: ",IMG.shape)
-
-IMG_HEIGHT = IMG.shape[0]
-IMG_WIDTH = IMG.shape[1]
-IMG_AREA = IMG_HEIGHT*IMG_WIDTH
+IMG_HEIGHT, IMG_WIDTH, IMG_AREA = getDimension(IMG)
 
 MaskImg = getMask(IMG, fSize=3)
 MaskImg3 = np.repeat(MaskImg[...,None],3,axis=2)
