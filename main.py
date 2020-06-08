@@ -18,7 +18,6 @@ IMG = cv2.imread(f'Invoices/invoices ({IMG_NO}).jpg')
 IMG_GRAY = cv2.cvtColor(IMG, cv2.COLOR_BGR2GRAY)
 IMG_HEIGHT, IMG_WIDTH, IMG_AREA = getDimension(IMG)
 
-
 ## ========= Create Segments AND Get Coordinates ===========
 
 MaskImg = getMask(IMG, fSize=3)
@@ -62,7 +61,7 @@ if (len(Segment) > 0):
   Segment2D = get2DSorted(Segment)
   SegmentList.append(Segment2D)
 
-print(SegmentList)
+# print(SegmentList)
 
 ## ========== For Results Show ===================
 
@@ -76,6 +75,14 @@ Rect_segLabel = getRectSegments(segLabel_Positions, maskShape = segLabel.shape)
 # Rect_ResultMask =  np.where(Rect_MaskImg3, IMG, 0)
 Rect_segMask = GetColoredSegmentationMask(Rect_segLabel, segmentCount)
 
+for V_List in SegmentList:
+  for H_List in V_List:
+    for patchDict in H_List:
+        pos_coord = PatchInfo.getPosCoord(patchDict)
+        text = patchDict['text']
+        cv2.putText(Rect_segMask, text, (pos_coord[0], pos_coord[3]),
+        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (209, 80, 0, 255))
+        
 ## ============= Save Image ==========================
 
 saveImage([IMG, Rect_segMask], f'Visualizations/segMask{IMG_NO}')
