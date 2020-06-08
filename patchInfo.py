@@ -6,50 +6,75 @@ import utilities as utl
 import infoRepo as ir
 
 class PatchInfo:
-	def __init__(self, img, pos_coord = None, idx=None):
+	def __init__(self, img, pos_coord = None):
 		minX, maxX, minY, maxY = pos_coord
-		self.idx = idx
-		self.img = img
-		self.center = ((minX+maxX)/2, (minY+maxY)/2)
-		self.pos_coord = pos_coord
-		self.Height = self.img.shape[0]
-		self.Width = self.img.shape[1]
-		self.text = self.extractText()
-		self.isLine = None
-		self.isBetweenLines = False
-		self.parent = None
-		self.siblings = None
-		self.isNumber = None
+		self.details = {
+			'center': ((minX+maxX)/2, (minY+maxY)/2),
+			'height': img.shape[0],
+			'width': img.shape[1],
+			'isLine': None,
+			'isNumber': None,
+			'isKeyword': None,
+		}
+		self.pos_coord = {
+			'minX': minX,
+			'maxX': maxX,
+			'minY': minY,
+			'maxY': maxY
+		}
+		self.text = self.extractText(img, pos_coord)
+		self.findTextInfo()
+		self.findDetails()
 
-	def extractText(self):
-		""" Extract Patch, Equilize The Image, Try With Different Padding Size """
+	@staticmethod
+	def getPosCoord(patchDict):
+		pos_coord_dict = patchDict['point']
+		minX = pos_coord_dict['minX']
+		maxX = pos_coord_dict['maxX']
+		minY = pos_coord_dict['minY']
+		maxY = pos_coord_dict['maxY']
+		return (minX, maxX, minY, maxY)
+
+	def getPatchDict(self):
+		res = dict()
+		res['text'] = self.text
+		res['details'] = self.details
+		res['point'] = self.pos_coord
+		return res
+
+	def extractText(self, img, pos_coord):
+		""" Extract Patch => Try Different Padding => Equilize"""
 		for pad in range(1,9):
-			img_ = utl.getPatch(self.img, self.pos_coord, pad)
+			img_ = utl.getPatch(img, pos_coord, pad)
 			equ = cv2.equalizeHist(img_)
-			self.text = utl.getText(equ)
-			if self.text is not "":
-				print(self.text)
-				self.findTextInfo()
-				break
+			text = utl.getText(equ)
+			if text is not "": return text
+		return ""
 
-	def isText(self):
-		return (self.text is not "")
+	def findDetails(self):
+		if self.text == "":
+			self.checkLine()
+		else:
+			self.details['isLine'] = False
+
+	def findTextInfo(self):
+		if self.text is not "":
+			self.checkKeyword()
+			self.checkNumber()
+
+	def checkLine(self):
+		isLine = self.details['width'] > 300 * self.details['height']
+		self.details['isLine'] = isLine
 
 	def checkKeyword(self):
 		if self.text[-1] == ":":
 			self.text = self.text[:-1]
-			self.isKeyword = True
-			return
-		self.isKeyword = False
+			self.details['isKeyword'] = True
 
-	def checkHeader(self):
-		self.isHeader = False
+	def checkNumber(self):
+		chars = set('$₹¥€£0123456789,')
+		self.details['isNumber'] = all((c in chars) for c in self.text)
 
-	def findTextInfo(self):
-		""" Extract Information """
-		if self.text == "": return
-		self.checkKeyword()
-		self.checkHeader()
 
 
 

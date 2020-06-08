@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import pytesseract as pt
+from patchInfo import PatchInfo
 
 def saveImage(img, imgName):
 	""" Concates horizontally Images: Save as PNG """
@@ -33,3 +34,8 @@ def getPatch(img, pos_coord, pad=2):
 def getText(img): return pt.image_to_string(img)
 def getPatchText(img,pos_coord,pad=2): return getText(getPatch(img,pos_coord,pad))
 def isText(img, pos_coord, pad=2): return (getPatchText(img,pos_coord,pad) is not "")
+
+def getPostionFromFilter(patchDictList):
+	return np.array(
+		[ np.array(PatchInfo.getPosCoord(pDict)) for pDict in patchDictList]
+	)
