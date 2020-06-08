@@ -2,8 +2,15 @@ import cv2
 import math
 import numpy as np
 import pytesseract as pt
+from sys import platform
+from extract_knowledge import *
+if platform == "linux" or platform == "linux2":
+    pt.pytesseract.tesseract_cmd = '/usr/local/bin/tesseract'
+elif platform == "darwin":
+    pt.pytesseract.tesseract_cmd = '/usr/local/bin/tesseract'
+elif platform == "win32":
+	pt.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
-pt.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
 from utilities import saveImage, GetColoredSegmentationMask, isText, getArea, getPostionFromFilter
 from segTask import getSegments, getMask, getSegmentPositions, getRectSegments
@@ -63,8 +70,84 @@ if (len(Segment) > 0):
   Segment2D = get2DSorted(Segment)
   SegmentList.append(Segment2D)
 
-# print(SegmentList)
-# print(infoDict)
+
+def filter_segments(gs):
+	gs1 = []
+	for g in gs:
+		gs2 = []
+		for i in g:
+			gs3 = []
+			for j in i:
+				if (j['text'] is not ''):
+					gs3.append(j)
+			if (gs3 != []):
+				gs2.append(gs3)
+		if (gs2 != []):
+			gs1.append(gs2)
+	return gs1
+
+import extract_knowledge
+print(SegmentList)
+
+def filter_result(kn):
+	kl = dict()
+	for k in kn.keys():
+		kl[k] = kn[k]['text']
+	return kl
+def filter_group(gs):
+	gs1 = []
+	for g in gs:
+		gs2 = []
+		for i in g:
+			gs2.append(i['text'])
+		gs1.append(gs2)
+	return gs1
+
+def filter_knowledge(kn):
+	gs1 = []
+	for g in gs:
+		# gs2 = []
+		if (g.__class__==str):
+			gs1.append(g['text'])
+		elif (g.__class__==tuple):
+			gs1.append((g[0]['text'],g[1]['text']))
+		else:
+			gs2 = []
+			for i in g:
+				gs2.append(i['text'])
+			gs1.append(gs2)
+	return gs1
+def filter_list(gs):
+	gs1 = []
+	for g in gs:
+		gs2 = []
+		for i in g:
+			gs3 = []
+			for j in i:
+				gs3.append(j['text'])
+			gs2.append(gs3)
+		gs1.append(gs2)
+	return gs1
+
+gs,kn  = extract_knowledge.extract(filter_segments(SegmentList))
+gsf = filter_group(gs)
+
+import io
+def write_out(kn):
+	with io.open('output.txt','w') as fl:
+		for g in kn:
+			if (g.__class__==str):
+				fl.write(g)
+				fl.write('\n')
+			elif (g.__class__==tuple):
+				fl.write('{'+g[0]['text'] + ' : ' + g[1]['text']+ '}')
+				fl.write('\n')
+			else:
+				fl.write(g[0])
+				for i in g[1:]:
+					fl.write(',' + i)
+				fl.write('\n')
+
 
 ## ========== For Results Show ===================
 
