@@ -117,6 +117,28 @@ def filter_knowledge(kn):
 				gs2.append(i['text'])
 			gs1.append(gs2)
 	return gs1
+
+def filter_knowledge2(kn):
+	gs1 = []
+	for g in gs:
+		# gs2 = []
+		if (g.__class__==str):
+			gs1.append(g['text'])
+		elif (g.__class__==tuple):
+			gs1.append((g[0]['text'],g[1]['text']))
+		else:
+			gs2 = []
+			output = False
+			for i in g:
+				gs2.append(i['text'])
+				if (i['details']['isNumber']):
+					output = True
+				elif (output):
+					break
+			if (output):
+				gs1.append(gs2)
+	return gs1
+
 def filter_list(gs):
 	gs1 = []
 	for g in gs:
@@ -133,8 +155,8 @@ gs,kn  = extract_knowledge.extract(filter_segments(SegmentList))
 gsf = filter_group(gs)
 
 import io
-def write_out(kn):
-	with io.open('output.txt','w') as fl:
+def write_out(kn,file):
+	with io.open(file,'w') as fl:
 		for g in kn:
 			if (g.__class__==str):
 				fl.write(g)
@@ -149,6 +171,8 @@ def write_out(kn):
 				fl.write('\n')
 
 
+write_out(filter_knowledge(kn),"output_all.txt")
+write_out(filter_knowledge2(kn),"output_selected.txt")
 ## ========== For Results Show ===================
 
 # MaskImg3 = np.repeat(MaskImg[...,None],3,axis=2)
