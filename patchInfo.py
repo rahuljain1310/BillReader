@@ -70,6 +70,8 @@ class PatchInfo:
 		if self.text[-1] == ":":
 			self.text = self.text[:-1]
 			self.details['isKeyword'] = True
+		if (self.text in ir.Keywords):
+			self.details['isKeyWord'] = True
 
 	def checkNumber(self):
 		charsDate = set('0123456789/-')
@@ -77,7 +79,7 @@ class PatchInfo:
 		charsCurrency = set('$₹¥€£0123456789,')
 		self.details['isCurrency'] = all((c in charsCurrency) for c in self.text)
 		self.details['isDate'] = all((c in charsDate) for c in self.text)
-		self.details['isNumber'] = all((c in charsNumeric) for c in self.text)
+		self.details['isNumber'] = all((c in charsNumeric) for c in self.text) or self.details['isCurrency']
 
 
 
