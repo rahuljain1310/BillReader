@@ -37,6 +37,15 @@ class PatchInfo:
 		maxY = pos_coord_dict['maxY']
 		return (minX, maxX, minY, maxY)
 
+	@staticmethod
+	def isKeyValuePair(Hlist):
+		if len(Hlist)==2:
+			keyDict = Hlist[0]['details']['isKeyWord']
+			valueDict = Hlist[1]['details']['isKeyWord']
+			return (keyDict and not valueDict)
+		else:
+			return False
+
 	def getPatchDict(self):
 		res = dict()
 		res['text'] = self.text
@@ -59,8 +68,10 @@ class PatchInfo:
 
 	def findTextInfo(self):
 		if self.text is not "":
-			self.checkKeyword()
 			self.checkNumber()
+			self.details['isDate'] = utl.is_date(self.text)
+			self.checkKeyword()
+
 
 	def checkLine(self):
 		isLine = self.details['width'] > 100 * self.details['height']
@@ -72,13 +83,13 @@ class PatchInfo:
 			self.details['isKeyword'] = True
 		if (self.text.lower() in ir.Keywords):
 			self.details['isKeyWord'] = True
+		if (self.details['isNumber'] or self.details['isDate']):
+			self.details['isKeyWord'] = False
 
 	def checkNumber(self):
-		charsDate = set('0123456789/-')
-		charsNumeric = set('0123456789.')
+		charsNumeric = set('0123456789.()')
 		charsCurrency = set('$₹¥€£0123456789,.')
 		self.details['isCurrency'] = all((c in charsCurrency) for c in self.text)
-		self.details['isDate'] = all((c in charsDate) for c in self.text)
 		self.details['isNumber'] = all((c in charsNumeric) for c in self.text) or self.details['isCurrency']
 
 

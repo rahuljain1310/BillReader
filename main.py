@@ -36,11 +36,13 @@ def get2DSorted(Segment):
   H_List.append(Segment[0])
   for patchDict in Segment[1:]:
     center_VerCoord = patchDict['details']['center'][1]
-    previous_VerCoord = H_List[-1]['details']['center'][1]
-    if abs(center_VerCoord-previous_VerCoord) < 4:
+    previous_VerCoord = H_List[0]['details']['center'][1]
+    if abs(center_VerCoord-previous_VerCoord) < 12:
+      print("Same Line", center_VerCoord, previous_VerCoord, patchDict['text'], H_List[0]['text'])
       H_List.append(patchDict)
     else:
       V_List.append(H_List)
+      print("New Line", center_VerCoord, previous_VerCoord, patchDict['text'], H_List[0]['text'])
       H_List = [patchDict]
   if (len(H_List) > 0):
     V_List.append(H_List)
@@ -62,6 +64,7 @@ if (len(Segment) > 0):
   SegmentList.append(Segment2D)
 
 # print(SegmentList)
+# print(infoDict)
 
 ## ========== For Results Show ===================
 
