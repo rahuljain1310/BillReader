@@ -162,7 +162,7 @@ def group(section):
 	# #
 def extract(data):
 	groups = []
-	knwoledge = dict()
+	knwoledge = []
 	for section in data:
 		groups.extend(group(section))
 	i = 0
@@ -172,13 +172,16 @@ def extract(data):
 		if (len(g)==0):
 			extracted[i] = True
 		elif (len(g)==1):
-			knwoledge[str(i)+':'] = g[0]
+			knwoledge.append(g[0])
 			extracted[i] = True
 		elif (g[0]['details']['isKeyword'] and g[0]['matched']):
 			pkey = g[0]
 			value =  g[1:]
-			knwoledge[str(i) + ':' + pkey['text']] = value
+			knwoledge.append((g[0],g[1]))
+			# knwoledge[str(i) + ':' + pkey['text']] = value
 			extracted[i] = True
+		else:
+			knwoledge.append(g)
 		i+=1
 	## recognize table
 	def half_keys(g):

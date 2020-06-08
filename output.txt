@@ -1,0 +1,33 @@
+CREDIT,NOTE
+#CN-17
+Credits Remaining,$562.750
+7455 Drew Court,‘White City
+66872
+USA
+270-510-0585,
+Bill To,Rob & Joe Traders
+4141 Hacienda Drive
+Credit Date,29 Jun 2018,Pleasanton
+94588 CA
+Refi¥;,321014
+USA
+cd JEMED:
+
+     
+
+ay,enjerateli)
+Gay,ATO ALe
+Brochure Design,1.00,300.000,300.000,Brochure Design Single Sided Color
+‘Web Design Packages(Template) - Basic,1.00,250,000,Custom Themes for your business. Inclusive of 10 hours of,marketing and annual training
+Print Ad - Basic - Color,1.00,80.000,Print Ad 1/8 size Color
+Sub Total,630.000
+Sample Tax1 (4.70%),11.750
+Sample Tax2 (7.00%),21.000
+Total,$662.750
+Credits Used,©) 100.000
+Credits Remaining
+
+$562,750,Credits Remaining,$562.750
+Notes
+Thanks for your business.
+Terms & Conditions,Your company’s Terms and Conditions will be displayed here. You can add it In the Credit notes Preferences page under Settings.
