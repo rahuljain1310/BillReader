@@ -25,7 +25,6 @@ IMG = cv2.imread(f'Invoices/invoices ({IMG_NO}).jpg')
 IMG_GRAY = cv2.cvtColor(IMG, cv2.COLOR_BGR2GRAY)
 IMG_HEIGHT, IMG_WIDTH, IMG_AREA = getDimension(IMG)
 
-
 ## ========= Create Segments AND Get Coordinates ===========
 
 MaskImg = getMask(IMG, fSize=3)
@@ -44,11 +43,13 @@ def get2DSorted(Segment):
   H_List.append(Segment[0])
   for patchDict in Segment[1:]:
     center_VerCoord = patchDict['details']['center'][1]
-    previous_VerCoord = H_List[-1]['details']['center'][1]
-    if abs(center_VerCoord-previous_VerCoord) < 4:
+    previous_VerCoord = H_List[0]['details']['center'][1]
+    if abs(center_VerCoord-previous_VerCoord) < 12:
+      print("Same Line", center_VerCoord, previous_VerCoord, patchDict['text'], H_List[0]['text'])
       H_List.append(patchDict)
     else:
       V_List.append(H_List)
+      print("New Line", center_VerCoord, previous_VerCoord, patchDict['text'], H_List[0]['text'])
       H_List = [patchDict]
   if (len(H_List) > 0):
     V_List.append(H_List)
@@ -160,6 +161,14 @@ Rect_segLabel = getRectSegments(segLabel_Positions, maskShape = segLabel.shape)
 # Rect_ResultMask =  np.where(Rect_MaskImg3, IMG, 0)
 Rect_segMask = GetColoredSegmentationMask(Rect_segLabel, segmentCount)
 
+for V_List in SegmentList:
+  for H_List in V_List:
+    for patchDict in H_List:
+        pos_coord = PatchInfo.getPosCoord(patchDict)
+        text = patchDict['text']
+        cv2.putText(Rect_segMask, text, (pos_coord[0], pos_coord[3]),
+        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (209, 80, 0, 255))
+        
 ## ============= Save Image ==========================
 
 saveImage([IMG, Rect_segMask], f'Visualizations/segMask{IMG_NO}')

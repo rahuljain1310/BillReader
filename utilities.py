@@ -2,6 +2,14 @@ import cv2
 import numpy as np
 import pytesseract as pt
 from patchInfo import PatchInfo
+from dateutil.parser import parse
+
+def is_date(string, fuzzy=False):
+	try: 
+		parse(string, fuzzy=fuzzy)
+		return True
+	except ValueError:
+		return False
 
 def saveImage(img, imgName):
 	""" Concates horizontally Images: Save as PNG """
