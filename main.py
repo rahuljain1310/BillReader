@@ -175,14 +175,14 @@ write_out(filter_knowledge(kn),"output_all.txt")
 write_out(filter_knowledge2(kn),"output_selected.txt")
 ## ========== For Results Show ===================
 
-# MaskImg3 = np.repeat(MaskImg[...,None],3,axis=2)
-# ResultMask =  np.where(MaskImg3, IMG, 0)
-# segMask = GetColoredSegmentationMask(segLabel, segmentCount)
+MaskImg3 = np.repeat(MaskImg[...,None],3,axis=2)
+ResultMask =  np.where(MaskImg3, IMG, 0)
+segMask = GetColoredSegmentationMask(segLabel, segmentCount)
 
 Rect_segLabel = getRectSegments(segLabel_Positions, maskShape = segLabel.shape)
-# Rect_MaskImg = np.where(Rect_segLabel, 255, 0).astype(np.uint8)
-# Rect_MaskImg3 = np.repeat(Rect_MaskImg[...,None],3,axis=2)
-# Rect_ResultMask =  np.where(Rect_MaskImg3, IMG, 0)
+Rect_MaskImg = np.where(Rect_segLabel, 255, 0).astype(np.uint8)
+Rect_MaskImg3 = np.repeat(Rect_MaskImg[...,None],3,axis=2)
+Rect_ResultMask =  np.where(Rect_MaskImg3, IMG, 0)
 Rect_segMask = GetColoredSegmentationMask(Rect_segLabel, segmentCount)
 
 for V_List in SegmentList:
@@ -195,7 +195,7 @@ for V_List in SegmentList:
         
 ## ============= Save Image ==========================
 
-saveImage([IMG, Rect_segMask], f'Visualizations/segMask{IMG_NO}')
+saveImage([IMG, ResultMask, segMask, Rect_ResultMask, Rect_segMask], f'Visualizations/segMask{IMG_NO}')
 
 ### Clean Up ###
 cv2.destroyAllWindows()

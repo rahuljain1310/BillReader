@@ -53,7 +53,7 @@ def is_align(p1,p2):
 	b_diff = p2['maxY'] - p1['maxY']
 	w1 = p1['maxY'] - p1['minY']
 	w2 = p2['maxY'] - p1['minY']
-	w = np.sqrt(w1*w2)
+	w = np.sqrt(w1*w2)+1
 	w_diff = abs(u_diff - b_diff)
 	L = 2
 	if (abs(u_diff/w) > L  or abs(b_diff/w) > L or w_diff/w > L):
